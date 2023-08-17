@@ -11,15 +11,46 @@ java {
 	sourceCompatibility = '17'
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	//this is web dependency
+	//this dependency is used to create a web application context
+	//web application context has by default an embedded tomcat server and other infrastructure beans
+	//which can handle all http requests.
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//this is jpa dependency
+	//as we have jdbc api internally in java, but it is slow if we use it in traditional way.
+	//as creating a connection object is a time consuming task and connection object is a heavy object
+	//we have to use datasource object. How datasource helps is at the start of the application it will create
+	//pool of connection objects(lets say 10) and these objects live in the pool till application is alive.
+	//as jdbc api is directly coupled with underlying database i.e sql syntax may vary for mysql and postgres
+	//so after few months if we want to change our underlying database from mysql to postgres, lot of development effort is needed
+	//so we need some technique by which the direct coupling with underlying database is removed
+	//java had came in its enterprise edition with new set of api called java persistence api(JPA)
+	//jpa is just a specification but we have to use its underlying implementation
+	//spring data jpa uses hibernate as the underlying jpa implementation.
+	//spring data jpa provides repository api which will reduce the development effort for day to day database operation
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'org.postgresql:postgresql'
+
+ 	//for every pojo(plain old java object) we might have to create getter,setter methods and has to override equals,hashcode and toString methods
+	//lets say a class product has almost 20 private variables. so the count of getter and setter methods will be 40 and it will create a lot of code inside class
+	//to overcome this issue, we use lombok annotation which adds the getter,setter and other methods to the .class file during compilation.
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
